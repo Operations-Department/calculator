@@ -97,3 +97,31 @@ html {
   #equal {
     width: 140px;
   }
+
+  .mouseover-blue {
+    background-color: #039BE5;
+    cursor: pointer;
+    transform: translateY(-3px);
+  }
+  
+  .mouseover-red {
+    background-color: #E53935;
+    cursor: pointer;
+    transform: translateY(-3px);
+  }
+  
+  .mouseover-operator {
+    background-color: #9C27B0;
+    cursor: pointer;
+    transform: translateY(-3px);
+  }
+  
+  .mouseover-equal {
+    background-color: #00C853;
+    cursor: pointer;
+    transform: translateY(-3px);
+  }
+  
+  .click {
+    transform: scale(0.9);
+  }
