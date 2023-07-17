@@ -91,3 +91,59 @@ equalButton.addEventListener('mouseover', () => {
 equalButton.addEventListener('mouseout', () => {
   equalButton.classList.remove('mouseover-equal');
 });
+//calculates the equation when clicked/called
+equalButton.addEventListener('click', calculateResult);
+
+// this is our big boy - calculates total
+function calculateResult() {
+  let equation = displayTop.textContent;
+  let symbol = /[+\-÷x]/g;
+  let operator = equation.match(symbol);
+  let [firstNumber, secondNumber] = equation.split(operator[0]).map(parseFloat);
+  let result = operate(firstNumber, operator[0], secondNumber);
+  //eliminates unnecessary zeroes after the decimal
+  result = result.toFixed(3).replace(/\.?0+$/, ''); 
+  displayBottom.textContent += result;
+};
+
+//keyboard support
+document.addEventListener('keydown', (e) => {
+    const key = e.key;
+    //type number keys into calc
+    if (/^\d$/.test(key)) {
+      if(displayBottom.textContent.length > 0) {
+      displayBottom.textContent = "";
+      displayTop.textContent = "";
+    }
+      displayTop.textContent += key;
+    }
+    //type operators into calc
+    if (/^[+\-]$/.test(key)) {
+      if (displayBottom.textContent.length > 0 && typeof parseFloat(displayBottom.textContent) === 'number') { 
+        displayTop.textContent = displayBottom.textContent;
+        displayBottom.textContent = "";
+      }
+      displayTop.textContent += key;
+    }
+    if (key === '*') {
+      if (displayBottom.textContent.length > 0 && typeof parseFloat(displayBottom.textContent) === 'number') { 
+        displayTop.textContent = displayBottom.textContent;
+        displayBottom.textContent = "";
+      }
+      displayTop.textContent += 'x';
+    }
+    if (key === '/') {
+      if (displayBottom.textContent.length > 0 && typeof parseFloat(displayBottom.textContent) === 'number') { 
+        displayTop.textContent = displayBottom.textContent;
+        displayBottom.textContent = "";
+      }
+      displayTop.textContent += '÷';
+    }
+    if (key === '.') {displayTop.textContent += key;}
+    //calculate total
+    if (key === 'Enter') {calculateResult();} 
+    //backspace
+    if (key === 'Backspace') {displayTop.textContent = displayTop.textContent.slice(0, -1);} 
+    //clear all
+    if (key === 'Delete') {displayTop.textContent = ""; displayBottom.textContent = "";} 
+  });
