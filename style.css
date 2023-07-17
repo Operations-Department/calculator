@@ -1,0 +1,99 @@
+html {
+    background-color: #752020;
+  background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.06'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  
+  }
+  
+  div {
+  /*   border: 1px solid white; */
+  }
+  
+  #page {
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  #calculator-container { 
+    width: 21em; 
+    height: 34em; 
+    display: flex;
+    justify-content: center;
+    background-color: #212121;
+  /*   border: 1px solid white; */
+    border-radius: 10px;
+    box-shadow: 20px 10px 30px black;
+  }
+  
+  #calculator {
+    font-family: Montserrat, sans-serif;
+    width: 292px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 5px;
+  }
+  
+  #display {
+    border: 1px solid #FDD835;
+    height: 120px;
+    background-color: #424242;
+    border-radius: 10px;
+    margin-bottom: 6px;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .display-box {
+  /*   border: 1px solid white; */
+    display: flex;
+    justify-content: right;
+    align-items: center;
+    padding-right: 12px;
+    display: border-box;
+    height: 60px;
+    overflow: below;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+  
+  #display-top {
+    color: white;
+    font-size: 28px;
+    height: 60px;
+    letter-spacing: 2px;
+  }
+  
+  #display-bottom {
+    color: #FDD835;
+    font-size: 42px;
+    font-weight: bold;
+    height: 60px;
+    letter-spacing: 1px;
+  }
+  
+  .rows {
+    height: 4.5em;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+  }
+  
+  button {
+    background-color: #757575;
+    font-weight: 550;
+    font-size: 24px;
+    color: white;
+    border: 1px solid #FDD835;
+    box-shadow: 8px 8px 12px black;
+    border-radius: 35px;
+    width: 64px;
+    height: 70px;
+    transition: all 0.2s ease-in-out;
+  }
+  
+  #equal {
+    width: 140px;
+  }
