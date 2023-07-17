@@ -108,42 +108,42 @@ function calculateResult() {
 
 //keyboard support
 document.addEventListener('keydown', (e) => {
-    const key = e.key;
-    //type number keys into calc
-    if (/^\d$/.test(key)) {
-      if(displayBottom.textContent.length > 0) {
+  const key = e.key;
+  //type number keys into calc
+  if (/^\d$/.test(key)) {
+    if(displayBottom.textContent.length > 0) {
+    displayBottom.textContent = "";
+    displayTop.textContent = "";
+  }
+    displayTop.textContent += key;
+  }
+  //type operators into calc
+  if (/^[+\-]$/.test(key)) {
+    if (displayBottom.textContent.length > 0 && typeof parseFloat(displayBottom.textContent) === 'number') { 
+      displayTop.textContent = displayBottom.textContent;
       displayBottom.textContent = "";
-      displayTop.textContent = "";
     }
-      displayTop.textContent += key;
+    displayTop.textContent += key;
+  }
+  if (key === '*') {
+    if (displayBottom.textContent.length > 0 && typeof parseFloat(displayBottom.textContent) === 'number') { 
+      displayTop.textContent = displayBottom.textContent;
+      displayBottom.textContent = "";
     }
-    //type operators into calc
-    if (/^[+\-]$/.test(key)) {
-      if (displayBottom.textContent.length > 0 && typeof parseFloat(displayBottom.textContent) === 'number') { 
-        displayTop.textContent = displayBottom.textContent;
-        displayBottom.textContent = "";
-      }
-      displayTop.textContent += key;
+    displayTop.textContent += 'x';
+  }
+  if (key === '/') {
+    if (displayBottom.textContent.length > 0 && typeof parseFloat(displayBottom.textContent) === 'number') { 
+      displayTop.textContent = displayBottom.textContent;
+      displayBottom.textContent = "";
     }
-    if (key === '*') {
-      if (displayBottom.textContent.length > 0 && typeof parseFloat(displayBottom.textContent) === 'number') { 
-        displayTop.textContent = displayBottom.textContent;
-        displayBottom.textContent = "";
-      }
-      displayTop.textContent += 'x';
-    }
-    if (key === '/') {
-      if (displayBottom.textContent.length > 0 && typeof parseFloat(displayBottom.textContent) === 'number') { 
-        displayTop.textContent = displayBottom.textContent;
-        displayBottom.textContent = "";
-      }
-      displayTop.textContent += '÷';
-    }
-    if (key === '.') {displayTop.textContent += key;}
-    //calculate total
-    if (key === 'Enter') {calculateResult();} 
-    //backspace
-    if (key === 'Backspace') {displayTop.textContent = displayTop.textContent.slice(0, -1);} 
-    //clear all
-    if (key === 'Delete') {displayTop.textContent = ""; displayBottom.textContent = "";} 
-  });
+    displayTop.textContent += '÷';
+  }
+  if (key === '.') {displayTop.textContent += key;}
+  //calculate total
+  if (key === 'Enter') {calculateResult();} 
+  //backspace
+  if (key === 'Backspace') {displayTop.textContent = displayTop.textContent.slice(0, -1);} 
+  //clear all
+  if (key === 'Delete') {displayTop.textContent = ""; displayBottom.textContent = "";} 
+});
