@@ -1,26 +1,30 @@
-//our operations
-const add = (x, y) => x + y;
-const subtract = (x, y) => x - y;
-const multiply = (x, y) => x * y;
-const divide = (x, y) => x / y;
-
 //undeclared variables to use later in calculation function
 let firstNumber;
 let operator;
 let secondNumber;
 //flag to track if a decimal has been used in the current operand - to avoid unlimited decimals
 let decimalUsed = false;
-//flag to track if an equation has an operator in it, so the calculator will not evaluate more than a pair of numbers at a time, 
-//for example 9+9+.. becomes 18+.. in the display to avoid long and complicated equations
+//flag to track if an equation has an operator in it, so the calculator will not evaluate more than a pair of numbers at a time, for example 9+9+.. becomes 18+.. in the display to avoid long and complicated equations
 let shouldCalculate = false;
+
+//const MAX_DISPLAY_TOP_LENGTH = 15;
+//const MAX_DISPLAY_BOTTOM_LENGTH = 11; //display character limit
+
+function truncateToMaxLength(str) { //corresponding helper function with character limit variable
+  return str.length > MAX_DISPLAY_BOTTOM_LENGTH ? str.slice(0, MAX_DISPLAY_BOTTOM_LENGTH) : str;
+}
 
 //operation function - to be called through calculation function and perform outputs
 const operate = (firstNumber, operator, secondNumber) => {
-  if(operator === '+') {return add(firstNumber, secondNumber);}
-  if(operator === '-') {return subtract(firstNumber, secondNumber);}
-  if(operator === '*') {return multiply(firstNumber, secondNumber);}
-  if(operator === '/' && secondNumber === 0) {return "error";}
-  if(operator === '/') {return divide(firstNumber, secondNumber);}
+  if (operator === '+') return firstNumber + secondNumber;
+  if (operator === '-') return firstNumber - secondNumber;
+  if (operator === '*') return firstNumber * secondNumber;
+  if (operator === '/') {
+    if (secondNumber === 0) return "Error";
+    return firstNumber / secondNumber;
+  }
+  if (operator === '%') return (firstNumber / 100) * secondNumber;
+  return null;
 };
 
 //connects js to html elements
@@ -87,14 +91,11 @@ clearButtons.forEach(button => {
       decimalUsed = false; // resets decimal and calculate flags 
       shouldCalculate = false;
     }
-    // does not reset decimal and calculate flag if display already has a decimal or operator present
-    if (displayTop.textContent.includes('.')) { // 
-      decimalUsed = true;
-    } 
     if (displayTop.textContent.includes('+') || 
         displayTop.textContent.includes("-") ||  
         displayTop.textContent.includes("*") || 
-        displayTop.textContent.includes("/")) {
+        displayTop.textContent.includes("/") ||
+        displayTop.textContent.includes("%")) {
         shouldCalculate = true;
         } 
   });
@@ -122,14 +123,6 @@ decimalButton.addEventListener('click', () => {
   }
 }); 
 
-
-
-
-
-
-
-
-
 //adds operator to display
 operatorButtons.forEach(button => {
   button.addEventListener('click', () => {
@@ -137,15 +130,15 @@ operatorButtons.forEach(button => {
     const lastChar = displayTop.textContent.slice(-1);
 
     //to stop stacking operators
-    if (lastChar === "+" || lastChar === "-" || lastChar === "*" || lastChar === "/") {
-      shouldCalculate = false;
-      const updatedDisplay = displayTop.textContent.slice(0, -1) //**************** bug is here somewhere
-      displayTop.textContent = updatedDisplay + text; //replaces operator with new one
-      shouldCalculate = true; // reset calculate flag
-    }    
+    if (lastChar === "+" || lastChar === "-" || lastChar === "*" || lastChar === "/" || lastChar === "%") {
+      shouldCalculate = false; // prevent premature calculation
+      displayTop.textContent = displayTop.textContent.slice(0, -1) + text; //replaces old operator with new one
+      shouldCalculate = true; //reset flag
+      return; // prevents other code within the event listener from executing, causing an error  
+    }
 
     // calculates the equation if there is one operator and two operands
-    if (shouldCalculate && displayBottom.textContent !== "error") {
+    if (shouldCalculate && displayBottom.textContent !== "Error") {
       const result = calculateResult();
       displayTop.textContent = result;
       displayBottom.textContent = "";
@@ -153,38 +146,30 @@ operatorButtons.forEach(button => {
     }
     
     if (!shouldCalculate) {
-      shouldCalculate = true;
+      shouldCalculate = true; // to allow an operator between two numbers and execute the equation when the second operator button is pressed 
     } 
 
-    // puts solution as a number of a new equation and avoids including 'error' in the equation
-    if (displayBottom.textContent.length > 0 && displayBottom.textContent !== "error") {
+    // puts solution as a number of a new equation and avoids including 'Error' in the equation
+    if (displayBottom.textContent.length > 0 && displayBottom.textContent !== "Error") {
       displayTop.textContent = displayBottom.textContent;
       displayBottom.textContent = "";
       // displayTop.textContent += text; 
     }
 
-    //to avoid an operator before a number
-    if (displayTop.textContent === "" && displayBottom.textContent === "" || displayBottom.textContent === "error") {
+    //can't put an operator in the display first
+    if (displayTop.textContent === "" && displayBottom.textContent === "" || displayBottom.textContent === "Error") {
       displayTop.textContent = "";
       displayBottom.textContent = "";
       shouldCalculate = false;
     }
 
     else {
-      // Add the new operator to the display
-      displayTop.textContent += text;
+      displayTop.textContent += text; //adds the new operator to the display
     }
 
-    decimalUsed = false; //reset decimal status flag
+    decimalUsed = false; //reset decimal status flag, allow the second number in equation to have a decimal
   });
 });
-
-
-
-
-
-
-
 
 //calculates the equation - click 'equals'
 equalButton.addEventListener('click', () => {
@@ -196,19 +181,37 @@ equalButton.addEventListener('click', () => {
 // this is our big boy - calculates total
 function calculateResult() {
   let equation = displayTop.textContent; //sets the display in equation var
-  let symbol = /[+\-*/]/g; // set operators under symbol var
+  let symbol = /[+\-*/%]/g; // set operators under symbol variable
   let operator = equation.match(symbol); // matches the symbol and stores as operator
-  let [firstNumber, secondNumber] = equation.split(operator[0]).map(parseFloat); // splits equation on either side of the operator, converts to a number and stores as first and second numbers of equation
+  let numbers = equation.split(symbol);
+  
+  let firstNumber = parseFloat(numbers[0]); 
+  let secondNumber = parseFloat(numbers[1]);
+  
+  // Handle negative numbers for the first number
+  if (equation.startsWith('-') && numbers.length > 2) { //*****************bug is here somewhere
+    firstNumber = -firstNumber;
+  }
+
+  // Handle negative numbers for the second number
+  if (numbers.length > 2 && numbers[1].startsWith('-')) {
+    secondNumber = -secondNumber;
+  }
+  
   let result = operate(firstNumber, operator[0], secondNumber); //triggers the equation and stores the result
   
-  // Handle division by zero or other invalid operations
-  if (isNaN(result) || !isFinite(result)) {
+  // handle division by zero and other invalid operations
+  if (isNaN(result) || !isFinite(result) || result === null) {
     displayTop.textContent = "";
-    displayBottom.textContent = "";
-    result = "error"; 
+    displayBottom.textContent = "Error";
+    firstNumber = null;
+    operator = null;
+    secondNumber = null;    
+    return "Error";
   } else {
     //eliminates unnecessary zeros after the decimal - max 3 decimal places
     result = result.toFixed(3).replace(/\.?0+$/, ''); 
+    //result = truncateToMaxLength(result, MAX_DISPLAY_BOTTOM_LENGTH); //cuts off at 11 character limit
   }
   if (displayBottom.textContent > 0) {
     displayBottom.textContent = ""; 
@@ -217,7 +220,7 @@ function calculateResult() {
   return result; // returns answer to be called in other functions
 }
 
-//keyboard support for same operations as above
+//KEYBOARD SUPPORT for same operations as above
 document.addEventListener('keydown', (e) => {
   const key = e.key;
   const lastChar = displayTop.textContent.slice(-1);
@@ -232,7 +235,14 @@ document.addEventListener('keydown', (e) => {
   }
 
   //type operators into calc
-  if (/^[+\-*/]$/.test(key)) {
+  if (/^[+\-*/%]$/.test(key)) {
+    if (lastChar === "+" || lastChar === "-" || lastChar === "*" || lastChar === "/" || lastChar === "%") {
+      shouldCalculate = false;
+      displayTop.textContent = displayTop.textContent.slice(0, -1) + key;
+      shouldCalculate = true;
+      return;
+    }
+    
     if (shouldCalculate) {
       const result = calculateResult();
       displayTop.textContent = result;
@@ -244,15 +254,16 @@ document.addEventListener('keydown', (e) => {
       shouldCalculate = true;
     }
     
-    if (displayBottom.textContent.length > 0 && displayBottom.textContent !== "error") { 
+    if (displayBottom.textContent.length > 0 && displayBottom.textContent !== "Error") { 
       displayTop.textContent = displayBottom.textContent;
       displayBottom.textContent = "";
     } 
-    if (lastChar === "+" || lastChar === "-" || lastChar === "*" || lastChar === "/") {
-      displayTop.textContent = displayTop.textContent.slice(0, -1) + key;
-    } else if (displayTop.textContent === "" && displayBottom.textContent === "") {
+
+    if (displayTop.textContent === "" && displayBottom.textContent === "") {
       displayTop.textContent = ""; //to stop putting an operator before a number
-    } else {
+    } 
+    
+    else {
       displayTop.textContent += key;
     }
     decimalUsed = false;
@@ -264,19 +275,34 @@ document.addEventListener('keydown', (e) => {
       decimalUsed = true;
     }
   }
+  
   //calculate total with enter key
   if (key === 'Enter') {
     calculateResult();
     decimalUsed = false;
+    shouldCalculate = false;
   } 
+  
   //backspace
-  if (key === 'Backspace') {
-    displayBottom.textContent = "";
-    displayTop.textContent = displayTop.textContent.slice(0, -1);
-  } 
+  if (key === 'Backspace') {  
+      displayBottom.textContent = "";
+      displayTop.textContent = displayTop.textContent.slice(0, -1); //deletes one character at a time
+      decimalUsed = false; // resets decimal and calculate flags 
+      shouldCalculate = false;
+    }
+
+    if (displayTop.textContent.includes('+') || 
+        displayTop.textContent.includes("-") ||  
+        displayTop.textContent.includes("*") || 
+        displayTop.textContent.includes("/") ||
+        displayTop.textContent.includes("%")) {
+        shouldCalculate = true;
+        } 
   //clear all with delete key
   if (key === 'Delete') {
     displayTop.textContent = ""; 
     displayBottom.textContent = "";
+    shouldCalculate = false;
+    decimalUsed = false;
   } 
 });
